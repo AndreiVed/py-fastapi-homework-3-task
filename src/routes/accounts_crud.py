@@ -27,6 +27,7 @@ async def get_or_create_group(
 
     return group
 
+
 async def validate_password(user: UserModel, password: str):
     try:
         user.password = password

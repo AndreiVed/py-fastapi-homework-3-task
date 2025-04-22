@@ -21,19 +21,36 @@ from database import (
     RefreshTokenModel
 )
 from exceptions import BaseSecurityError, TokenExpiredError, InvalidTokenError
-from routes.accounts_crud import get_user_by_email, create_user, user_activation, get_activate_token, \
-    deactivate_and_create_new_password_reset_token, get_password_reset_token, update_password, delete_token, \
-    delete_token_with_exception, get_user_by_id
-from schemas.accounts import UserRegistrationRequestSchema, UserRegistrationResponseSchema, UserActivationRequestSchema, \
-    PasswordResetRequestSchema, PasswordResetCompleteRequestSchema, UserLoginResponseSchema, UserLoginRequestSchema, \
-    TokenRefreshRequestSchema, TokenRefreshResponseSchema
+from routes.accounts_crud import (
+    get_user_by_email,
+    create_user,
+    user_activation,
+    get_activate_token,
+    deactivate_and_create_new_password_reset_token,
+    get_password_reset_token,
+    update_password,
+    delete_token_with_exception,
+    get_user_by_id
+)
+
+from schemas.accounts import (
+    UserRegistrationRequestSchema,
+    UserRegistrationResponseSchema,
+    UserActivationRequestSchema,
+    PasswordResetRequestSchema,
+    PasswordResetCompleteRequestSchema,
+    UserLoginResponseSchema,
+    UserLoginRequestSchema,
+    TokenRefreshRequestSchema,
+    TokenRefreshResponseSchema
+)
 from security.interfaces import JWTAuthManagerInterface
-from security.passwords import hash_password
 from security.token_manager import JWTAuthManager
 
 router = APIRouter()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
 
 @router.post("/register/", response_model=UserRegistrationResponseSchema, status_code=201)
 async def register(user: UserRegistrationRequestSchema, db: AsyncSession = Depends(get_db)):
@@ -44,6 +61,7 @@ async def register(user: UserRegistrationRequestSchema, db: AsyncSession = Depen
 
     db_user = await create_user(db, user)
     return UserRegistrationResponseSchema.model_validate(db_user)
+
 
 @router.post("/activate/", status_code=200)
 async def activate(activation_data: UserActivationRequestSchema, db: AsyncSession = Depends(get_db)):
@@ -101,7 +119,7 @@ async def password_reset_complete(reset_data: PasswordResetCompleteRequestSchema
     return {"message": "Password reset successfully."}
 
 
-@router.post("/login/",response_model=UserLoginResponseSchema, status_code=201)
+@router.post("/login/", response_model=UserLoginResponseSchema, status_code=201)
 async def login(
         login_data: UserLoginRequestSchema,
         db: AsyncSession = Depends(get_db),
@@ -111,13 +129,13 @@ async def login(
     user = await get_user_by_email(db, login_data.email)
 
     if user and not user.is_active:
-         raise HTTPException(
+        raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User account is not activated."
         )
 
     if not user or not user.verify_password(login_data.password):
-         raise HTTPException(
+        raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password."
         )
@@ -155,7 +173,7 @@ async def refresh(
 ):
     refresh_token = refresh_data.refresh_token
     try:
-        payload = jwt_manager.decode_refresh_token(token=refresh_token)
+        jwt_manager.decode_refresh_token(token=refresh_token)
     except TokenExpiredError:
         raise HTTPException(status_code=400, detail="Token has expired.")
     except InvalidTokenError:
