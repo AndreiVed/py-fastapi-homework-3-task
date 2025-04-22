@@ -12,7 +12,7 @@ class UserRegistrationRequestSchema(UserBaseSchema):
 
 class UserRegistrationResponseSchema(UserBaseSchema):
     id: int
-    _hashed_password: str
+    password: str
 
     class Config:
         from_attributes = True
