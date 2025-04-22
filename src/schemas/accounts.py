@@ -1,5 +1,5 @@
 from database import accounts_validators, UserGroupEnum, UserGroupModel
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 
 class UserBaseSchema(BaseModel):
@@ -12,7 +12,7 @@ class UserRegistrationRequestSchema(UserBaseSchema):
 
 class UserRegistrationResponseSchema(UserBaseSchema):
     id: int
-    password: str
+    password: str = Field(alias="_hashed_password")
 
     class Config:
         from_attributes = True

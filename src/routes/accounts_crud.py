@@ -96,12 +96,14 @@ async def user_activation(
         token: ActivationTokenModel,
         user: UserModel
 ):
-
+    # помічаємо user активним
     user.is_active = True
     db.add(user)
     await db.commit()
-    await db.refresh(user)
-    await delete_token(db, token)
+
+    # видаляємо токен активації
+    await db.delete(token)
+    await db.commit()
 
     return user
 
